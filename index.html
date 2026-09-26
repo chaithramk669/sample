@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGPA & CGPA Calculator</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            padding: 30px 15px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            color: #4f46a5;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            background: #4f46a5;
+            color: white;
+            padding: 13px;
+            text-align: center;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #4f46a5;
+            box-shadow: 0 0 4px rgba(79, 70, 165, 0.3);
+        }
+
+        button {
+            border: none;
+            padding: 11px 18px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .add-btn {
+            background: #22c55e;
+            color: white;
+            margin-top: 15px;
+        }
+
+        .add-btn:hover {
+            background: #16a34a;
+        }
+
+        .remove-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .remove-btn:hover {
+            background: #dc2626;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: #4f46a5;
+            color: white;
+            font-size: 16px;
+            margin-top: 20px;
+            padding: 14px;
+        }
+
+        .calculate-btn:hover {
+            background: #3730a3;
+        }
+
+        .result {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 10px;
+        }
+
+        .result h3 {
+            color: #15803d;
+            margin-bottom: 8px;
+        }
+
+        .sgpa-value {
+            font-size: 40px;
+            font-weight: bold;
+            color: #4f46a5;
+        }
+
+        .cgpa-section {
+            text-align: center;
+        }
+
+        .semester-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .semester-inputs input {
+            flex: 1;
+        }
+
+        .remove-semester {
+            background: #ef4444;
+            color: white;
+        }
+
+        .cgpa-result {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #eef2ff;
+            border-radius: 10px;
+        }
+
+        .cgpa-value {
+            font-size: 40px;
+            font-weight: bold;
+            color: #4f46a5;
+        }
+
+        .info {
+            background: #f8fafc;
+            border-left: 4px solid #4f46a5;
+            padding: 15px;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .semester-inputs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>SGPA & CGPA Calculator</h1>
+        <p>Calculate your Semester Grade Point Average and Cumulative Grade Point Average</p>
+    </div>
+
+    <!-- SGPA Calculator -->
+    <div class="card">
+        <h2>📚 SGPA Calculator</h2>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Credits</th>
+                        <th>Grade</th>
+                        <th>Grade Point</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="subjectTable">
+
+                    <tr>
+                        <td>
+                            <input type="text" placeholder="Subject 1">
+                        </td>
+
+                        <td>
+                            <input type="number" class="credit" min="0" step="0.5" placeholder="Credits">
+                        </td>
+
+                        <td>
+                            <select class="grade" onchange="updateGradePoint(this)">
+                                <option value="">Select Grade</option>
+                                <option value="10">O</option>
+                                <option value="9">A+</option>
+                                <option value="8">A</option>
+                                <option value="7">B+</option>
+                                <option value="6">B</option>
+                                <option value="5">C</option>
+                                <option value="4">P</option>
+                                <option value="0">F</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            <input type="number" class="gradePoint" readonly>
+                        </td>
+
+                        <td>
+                            <button class="remove-btn" onclick="removeSubject(this)">
+                                Remove
+                            </button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <button class="add-btn" onclick="addSubject()">
+            + Add Subject
+        </button>
+
+        <button class="calculate-btn" onclick="calculateSGPA()">
+            Calculate SGPA
+        </button>
+
+        <div class="result" id="sgpaResult">
+            <h3>Your SGPA</h3>
+            <div class="sgpa-value" id="sgpaValue">0.00</div>
+        </div>
+    </div>
+
+
+    <!-- CGPA Calculator -->
+    <div class="card cgpa-section">
+
+        <h2>🎓 CGPA Calculator</h2>
+
+        <p style="margin-bottom: 20px;">
+            Enter the SGPA obtained in each semester.
+        </p>
+
+        <div id="semesterContainer">
+
+            <div class="semester-inputs">
+                <input type="number"
+                       class="semester"
+                       min="0"
+                       max="10"
+                       step="0.01"
+                       placeholder="Semester 1 SGPA">
+
+                <button class="remove-semester"
+                        onclick="removeSemester(this)">
+                    Remove
+                </button>
+            </div>
+
+        </div>
+
+        <button class="add-btn" onclick="addSemester()">
+            + Add Semester
+        </button>
+
+        <button class="calculate-btn" onclick="calculateCGPA()">
+            Calculate CGPA
+        </button>
+
+        <div class="cgpa-result" id="cgpaResult">
+            <h3>Your CGPA</h3>
+            <div class="cgpa-value" id="cgpaValue">0.00</div>
+        </div>
+
+        <div class="info">
+            <strong>Formula:</strong><br>
+            CGPA = Sum of all Semester SGPAs ÷ Number of Semesters
+        </div>
+
+    </div>
+
+    <footer>
+        © 2026 SGPA & CGPA Calculator | All Rights Reserved
+    </footer>
+
+</div>
+
+
+<script>
+
+    // Update grade point when grade is selected
+    function updateGradePoint(select) {
+
+        const row = select.closest("tr");
+        const gradePointInput = row.querySelector(".gradePoint");
+
+        gradePointInput.value = select.value;
+    }
+
+
+    // Add new subject
+    function addSubject() {
+
+        const table = document.getElementById("subjectTable");
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>
+                <input type="text" placeholder="Subject">
+            </td>
+
+            <td>
+                <input type="number"
+                       class="credit"
+                       min="0"
+                       step="0.5"
+                       placeholder="Credits">
+            </td>
+
+            <td>
+                <select class="grade" onchange="updateGradePoint(this)">
+                    <option value="">Select Grade</option>
+                    <option value="10">O</option>
+                    <option value="9">A+</option>
+                    <option value="8">A</option>
+                    <option value="7">B+</option>
+                    <option value="6">B</option>
+                    <option value="5">C</option>
+                    <option value="4">P</option>
+                    <option value="0">F</option>
+                </select>
+            </td>
+
+            <td>
+                <input type="number"
+                       class="gradePoint"
+                       readonly>
+            </td>
+
+            <td>
+                <button class="remove-btn"
+                        onclick="removeSubject(this)">
+                    Remove
+                </button>
+            </td>
+        `;
+
+        table.appendChild(row);
+    }
+
+
+    // Remove subject
+    function removeSubject(button) {
+
+        const rows = document.querySelectorAll("#subjectTable tr");
+
+        if (rows.length > 1) {
+            button.closest("tr").remove();
+        } else {
+            alert("At least one subject is required.");
+        }
+    }
+
+
+    // Calculate SGPA
+    function calculateSGPA() {
+
+        const rows = document.querySelectorAll("#subjectTable tr");
+
+        let totalCredits = 0;
+        let totalPoints = 0;
+
+        rows.forEach(row => {
+
+            const credit =
+                parseFloat(row.querySelector(".credit").value);
+
+            const gradePoint =
+                parseFloat(row.querySelector(".gradePoint").value);
+
+            if (!isNaN(credit) && !isNaN(gradePoint)) {
+
+                totalCredits += credit;
+
+                totalPoints += credit * gradePoint;
+            }
+        });
+
+
+        if (totalCredits === 0) {
+
+            alert("Please enter valid credits and grades.");
+
+            return;
+        }
+
+
+        const sgpa = totalPoints / totalCredits;
+
+        document.getElementById("sgpaValue").textContent =
+            sgpa.toFixed(2);
+
+        document.getElementById("sgpaResult").style.display =
+            "block";
+    }
+
+
+    // Add semester
+    function addSemester() {
+
+        const container =
+            document.getElementById("semesterContainer");
+
+        const div = document.createElement("div");
+
+        div.className = "semester-inputs";
+
+        const semesterNumber =
+            container.children.length + 1;
+
+        div.innerHTML = `
+            <input type="number"
+                   class="semester"
+                   min="0"
+                   max="10"
+                   step="0.01"
+                   placeholder="Semester ${semesterNumber} SGPA">
+
+            <button class="remove-semester"
+                    onclick="removeSemester(this)">
+                Remove
+            </button>
+        `;
+
+        container.appendChild(div);
+    }
+
+
+    // Remove semester
+    function removeSemester(button) {
+
+        const semesters =
+            document.querySelectorAll(".semester-inputs");
+
+        if (semesters.length > 1) {
+
+            button.parentElement.remove();
+
+        } else {
+
+            alert("At least one semester is required.");
+        }
+    }
+
+
+    // Calculate CGPA
+    function calculateCGPA() {
+
+        const inputs =
+            document.querySelectorAll(".semester");
+
+        let total = 0;
+        let count = 0;
+
+        inputs.forEach(input => {
+
+            const value =
+                parseFloat(input.value);
+
+            if (!isNaN(value) && value >= 0 && value <= 10) {
+
+                total += value;
+
+                count++;
+            }
+        });
+
+
+        if (count === 0) {
+
+            alert("Please enter at least one valid SGPA.");
+
+            return;
+        }
+
+
+        const cgpa = total / count;
+
+        document.getElementById("cgpaValue").textContent =
+            cgpa.toFixed(2);
+
+        document.getElementById("cgpaResult").style.display =
+            "block";
+    }
+
+</script>
+
+</body>
+</html>
